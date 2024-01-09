@@ -4,9 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"todo/internal/db"
 )
 
 type App struct {
+	DB *db.DB
 }
 
 func (a *App) HomeHandler(c *gin.Context) {
@@ -25,12 +27,12 @@ func (a *App) DeleteTask(c *gin.Context) {
 		return
 	}
 
-	err = DeleteTaskFromDB(taskID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to delete task"})
-		return
+	isDelete, err := a.DB.DeleteTaskFromDB(taskID)
+	
+	if isDelete && err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Task deletion error"})
+	} else {
+		c.JSON(200, gin.H{"message": "Task deleted succesfully"})
 	}
-
-	c.JSON(200, gin.H{"message": "Task deleted succesfully"})
+	
 }
